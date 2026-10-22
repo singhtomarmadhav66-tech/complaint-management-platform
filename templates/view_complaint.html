@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Complaint #{{ complaint.id }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('dashboard') }}" class="text-decoration-none d-inline-block mb-3">&larr; Back to Dashboard</a>
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h4>{{ complaint.title }}</h4>
+                <p class="text-muted mb-1">Complaint #{{ complaint.id }} &middot; {{ complaint.category.name }}</p>
+                <p class="mb-1">
+                    Submitted by:
+                    {% if hide_identity %}
+                        <strong>Anonymous</strong>
+                    {% else %}
+                        <strong>{{ complaint.student.name }}</strong>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-secondary">{{ complaint.priority }}</span>
+                <span class="badge
+                    {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}bg-success
+                    {% elif complaint.status == 'Rejected' %}bg-danger
+                    {% else %}bg-warning text-dark{% endif %}">
+                    {{ complaint.status }}
+                </span>
+                {% if complaint.is_overdue() %}
+                    <span class="badge bg-danger">Overdue</span>
+                {% endif %}
+            </div>
+        </div>
+        <hr>
+        <p>{{ complaint.description }}</p>
+
+        {% if attachments %}
+            <p class="mb-1"><strong>Attachments:</strong></p>
+            <ul>
+                {% for a in attachments %}
+                    <li><a href="{{ url_for('static', filename='uploads/' + a.file_path) }}" target="_blank">{{ a.original_name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <p class="text-muted small mb-0">
+            Submitted on {{ complaint.created_at.strftime('%d %b %Y, %I:%M %p') }}
+            {% if complaint.deadline %}
+                &middot; Due by {{ complaint.deadline.strftime('%d %b %Y, %I:%M %p') }}
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+{% if feedback %}
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Your Feedback</h5>
+        <p class="mb-1">Rating: {{ '⭐' * feedback.rating }} ({{ feedback.rating }}/5)</p>
+        {% if feedback.comment %}<p class="mb-0 text-muted">{{ feedback.comment }}</p>{% endif %}
+    </div>
+</div>
+{% elif can_give_feedback %}
+<div class="card shadow-sm mb-3 border-success">
+    <div class="card-body">
+        <h5 class="card-title">This complaint has been resolved. How was it handled?</h5>
+        <form method="POST" action="{{ url_for('submit_feedback', complaint_id=complaint.id) }}" class="mb-4">
+            <input type="hidden" name="action" value="feedback">
+            <div class="mb-3">
+                <label class="form-label">Rating</label>
+                <select name="rating" class="form-select" style="width:auto" required>
+                    <option value="" selected disabled>Choose rating</option>
+                    <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                    <option value="4">⭐⭐⭐⭐ Good</option>
+                    <option value="3">⭐⭐⭐ Okay</option>
+                    <option value="2">⭐⭐ Poor</option>
+                    <option value="1">⭐ Very Poor</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Comment (optional)</label>
+                <textarea name="comment" class="form-control" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Submit Feedback &amp; Close</button>
+        </form>
+
+        <hr>
+        <h6>Not actually resolved?</h6>
+        <form method="POST" action="{{ url_for('submit_feedback', complaint_id=complaint.id) }}">
+            <input type="hidden" name="action" value="reopen">
+            <div class="mb-2">
+                <textarea name="reopen_reason" class="form-control" rows="2"
+                          placeholder="Explain why this should be reopened"></textarea>
+            </div>
+            <button type="submit" class="btn btn-outline-danger btn-sm">Reopen Complaint</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if current_user.id == complaint.assigned_to or current_user.role == 'admin' %}
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Update This Complaint</h5>
+        <form method="POST" action="{{ url_for('update_complaint', complaint_id=complaint.id) }}">
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    {% for s in ['Submitted', 'In Progress', 'Resolved', 'Closed', 'Rejected'] %}
+                        <option value="{{ s }}" {% if complaint.status == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Remark</label>
+                <textarea name="remark" class="form-control" rows="2"
+                          placeholder="What did you do? (visible to the student)"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Update</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">History</h5>
+        <ul class="list-group list-group-flush">
+            {% for h in history %}
+                <li class="list-group-item">
+                    <strong>{{ h.action }}</strong>
+                    <span class="text-muted small"> — {{ h.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+                    {% if h.remark %}<div>{{ h.remark }}</div>{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

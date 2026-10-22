@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Manage Categories{% endblock %}
+{% block content %}
+<a href="{{ url_for('admin_home') }}" class="text-decoration-none d-inline-block mb-3">&larr; Back to Admin Panel</a>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Manage Categories</h5>
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>SLA (hours)</th>
+                    <th>Routes To</th>
+                    <th>Confidential</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in categories %}
+                <tr>
+                    <form method="POST" action="{{ url_for('admin_update_category', category_id=c.id) }}">
+                    <td class="align-middle">{{ c.name }}</td>
+                    <td>
+                        <select name="default_priority" class="form-select form-select-sm">
+                            {% for p in ['Low', 'Medium', 'High', 'Critical'] %}
+                                <option value="{{ p }}" {% if c.default_priority == p %}selected{% endif %}>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="sla_hours" value="{{ c.sla_hours }}" min="1"
+                               class="form-control form-control-sm" style="width:90px">
+                    </td>
+                    <td>
+                        <select name="handler_role" class="form-select form-select-sm">
+                            {% for r in ['officer', 'hod', 'committee'] %}
+                                <option value="{{ r }}" {% if c.handler_role == r %}selected{% endif %}>{{ r }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <input type="checkbox" name="is_confidential" class="form-check-input"
+                               {% if c.is_confidential %}checked{% endif %}>
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                    </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p class="text-muted small mb-0">
+            "Routes To" decides which role a new complaint in this category is auto-assigned to.
+            "Confidential" categories should route to <code>committee</code>.
+        </p>
+    </div>
+</div>
+{% endblock %}

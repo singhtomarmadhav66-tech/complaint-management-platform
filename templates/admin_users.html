@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+<a href="{{ url_for('admin_home') }}" class="text-decoration-none d-inline-block mb-3">&larr; Back to Admin Panel</a>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Manage Users</h5>
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Roll No.</th>
+                    <th>Role</th>
+                    <th>Change Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.roll_no or '-' }}</td>
+                    <td><span class="badge bg-secondary">{{ u.role }}</span></td>
+                    <td>
+                        {% if u.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('admin_change_role', user_id=u.id) }}" class="d-flex gap-2">
+                            <select name="role" class="form-select form-select-sm" style="width:auto">
+                                {% for r in ['student', 'officer', 'hod', 'committee', 'admin'] %}
+                                    <option value="{{ r }}" {% if u.role == r %}selected{% endif %}>{{ r }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                        </form>
+                        {% else %}
+                            <span class="text-muted small">(you)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

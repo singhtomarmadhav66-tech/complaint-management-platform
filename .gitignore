@@ -1,0 +1,15 @@
+# Virtual environment and Python cache
+venv/
+__pycache__/
+*.pyc
+
+# Local database (contains user data) - recreate with: flask --app app init-db
+instance/
+*.db
+
+# Uploaded attachments (keep the folder itself)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Editor settings
+.vscode/

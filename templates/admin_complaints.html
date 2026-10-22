@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}All Complaints{% endblock %}
+{% block content %}
+<a href="{{ url_for('admin_home') }}" class="text-decoration-none d-inline-block mb-3">&larr; Back to Admin Panel</a>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title mb-3">All Complaints</h5>
+        {% if complaints %}
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Assigned To</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in complaints %}
+                <tr onclick="window.location='{{ url_for('view_complaint', complaint_id=c.id) }}'" style="cursor:pointer">
+                    <td>#{{ c.id }}</td>
+                    <td>{{ c.title }}</td>
+                    <td>{{ c.category.name }}</td>
+                    <td>{{ c.handler.name if c.handler else '— unassigned —' }}</td>
+                    <td><span class="badge bg-secondary">{{ c.priority }}</span></td>
+                    <td>
+                        <span class="badge
+                            {% if c.status in ['Resolved', 'Closed'] %}bg-success
+                            {% elif c.status == 'Rejected' %}bg-danger
+                            {% else %}bg-warning text-dark{% endif %}">
+                            {{ c.status }}
+                        </span>
+                        {% if c.is_overdue() %}<span class="badge bg-danger">Overdue</span>{% endif %}
+                    </td>
+                    <td>{{ c.created_at.strftime('%d %b %Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="text-muted">No complaints yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

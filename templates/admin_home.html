@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+<a href="{{ url_for('dashboard') }}" class="text-decoration-none d-inline-block mb-3">&larr; Back to Dashboard</a>
+
+<h3 class="mb-3">Admin Panel</h3>
+
+<div class="row mb-4 g-3">
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <div class="fs-3 fw-bold">{{ total }}</div>
+            <div class="text-muted">Total Complaints</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <div class="fs-3 fw-bold text-warning">{{ open_count }}</div>
+            <div class="text-muted">Open</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <div class="fs-3 fw-bold text-success">{{ resolved_count }}</div>
+            <div class="text-muted">Resolved</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center p-3">
+            <div class="fs-3 fw-bold text-danger">{{ overdue_count }}</div>
+            <div class="text-muted">Overdue</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_complaints') }}" class="text-decoration-none">
+            <div class="card shadow-sm p-3">
+                <h5>All Complaints</h5>
+                <p class="text-muted mb-0">View and open every complaint in the system.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_users') }}" class="text-decoration-none">
+            <div class="card shadow-sm p-3">
+                <h5>Manage Users</h5>
+                <p class="text-muted mb-0">View all users and change their role.</p>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{{ url_for('admin_categories') }}" class="text-decoration-none">
+            <div class="card shadow-sm p-3">
+                <h5>Manage Categories</h5>
+                <p class="text-muted mb-0">Edit priority, SLA hours, routing and confidentiality.</p>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

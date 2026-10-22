@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="bg-white p-4 rounded shadow-sm mb-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h3>Welcome, {{ user.name }}</h3>
+            <p class="text-muted mb-0">Role: <strong>{{ user.role }}</strong></p>
+        </div>
+        {% if user.role == 'student' %}
+            <a href="{{ url_for('new_complaint') }}" class="btn btn-primary">+ Submit Complaint</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="bg-white p-4 rounded shadow-sm">
+    <h5>
+        {% if user.role == 'student' %}My Complaints
+        {% elif user.role == 'admin' %}All Complaints
+        {% else %}Complaints Assigned to Me
+        {% endif %}
+    </h5>
+
+    {% if complaints %}
+    <table class="table table-hover align-middle mt-2">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Submitted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in complaints %}
+            <tr onclick="window.location='{{ url_for('view_complaint', complaint_id=c.id) }}'" style="cursor:pointer">
+                <td>#{{ c.id }}</td>
+                <td>{{ c.title }}</td>
+                <td>{{ c.category.name }}</td>
+                <td><span class="badge bg-secondary">{{ c.priority }}</span></td>
+                <td>
+                    <span class="badge
+                        {% if c.status in ['Resolved', 'Closed'] %}bg-success
+                        {% elif c.status == 'Rejected' %}bg-danger
+                        {% else %}bg-warning text-dark{% endif %}">
+                        {{ c.status }}
+                    </span>
+                    {% if c.is_overdue() %}<span class="badge bg-danger">Overdue</span>{% endif %}
+                </td>
+                <td>{{ c.created_at.strftime('%d %b %Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="text-muted mt-2">No complaints to show yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
